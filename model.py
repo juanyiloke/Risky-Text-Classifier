@@ -11,7 +11,40 @@ import os
 import nltk
 import re
 import sklearn
+import numpy as np
 
+class LabelEncoderExt(object):
+    def __init__(self):
+        """
+        It differs from LabelEncoder by handling new classes and providing a value for it [Unknown]
+        Unknown will be added in fit and transform will take care of new item. It gives unknown class id
+        """
+        self.label_encoder = LabelEncoder()
+        # self.classes_ = self.label_encoder.classes_
+
+    def fit(self, data_list):
+        """
+        This will fit the encoder for all the unique values and introduce unknown value
+        :param data_list: A list of string
+        :return: self
+        """
+        self.label_encoder = self.label_encoder.fit(list(data_list) + ['Unknown'])
+        self.classes_ = self.label_encoder.classes_
+
+        return self
+
+    def transform(self, data_list):
+        """
+        This will transform the data_list to id list where the new values get assigned to Unknown class
+        :param data_list:
+        :return:
+        """
+        new_data_list = list(data_list)
+        for unique_item in np.unique(data_list):
+            if unique_item not in self.label_encoder.classes_:
+                new_data_list = ['Unknown' if x==unique_item else x for x in new_data_list]
+
+        return self.label_encoder.transform(new_data_list)
 
 def normalize_document(doc):
     # lower case and remove special characters\whitespaces
@@ -23,18 +56,19 @@ def normalize_document(doc):
     # filter stopwords out of document
     filtered_tokens = [token for token in tokens if token not in stop_words]
     # re-create document from filtered tokens
-    # doc = ' '.join(filtered_tokens)
+    doc = ' '.join(filtered_tokens)
     return doc
 
 
 
 if __name__ == "__main__":
-
     wpt = nltk.WordPunctTokenizer()
     stop_words = nltk.corpus.stopwords.words('english')
 
 
-    ### Consolidate Depression files into one dataframe with 2 columnns (label, text)
+    ### Consolidate Depression and Suicide files into one dataframe with 2 columnns (label, text)
+    ### Ensured 50/50 breakdown between the 2.
+    ### Need a third
     df = pd.DataFrame(columns=["label", "text"])
     i = 0
     for file in os.listdir("./data/slighly less uncleaned/Suicide"):
@@ -42,22 +76,25 @@ if __name__ == "__main__":
         df.loc[i] = ["suicide"] + [text]
         i += 1
 
-    for file in os.listdir("./data/slighly less uncleaned/Depression"):
+    j = 0
+    while j < i:
+        file = os.listdir("./data/slighly less uncleaned/Depression")[j]
+        print(file)
         text = open(("data/slighly less uncleaned/Depression/" + file)).read()
-        df.loc[i] = ["depression"] + [text]
-        i += 1
+        df.loc[i + j] = ["depression"] + [text]
+        j += 1
 
     ## We know that this dataset is collected from actual surveys of participants.
     ## thus we can safely disregard syntactic or semantic structures of the text.
 
     text_values = df["text"]
-    print(text_values)
+    print(df)
 
 
     ## we do some simple normalization of the text data.
 
     i = 0
-    while i < 865:
+    while i < 2*j:
         text = df.loc[i]['text']
         text = normalize_document(text)
         df.loc[i]['text'] = text
@@ -65,6 +102,7 @@ if __name__ == "__main__":
     print(df)
     print(df.info())
 
+#######################################################################################################################
     # ### unary classifer
     #
     # from sklearn.model_selection import train_test_split
@@ -104,7 +142,7 @@ if __name__ == "__main__":
     # score = f1_score(testy, yhat, pos_label=-1)
     # print('F1 Score: %.3f' % score)
 
-
+#######################################################################################################################
     ### binary classifier
 
     ## Split the data
@@ -113,6 +151,7 @@ if __name__ == "__main__":
                                                                         test_size=0.3, shuffle = True)
     # encode text data
     Encoder = sklearn.preprocessing.LabelEncoder()
+    Encoder_Test = sklearn.preprocessing.OrdinalEncoder
     Train_Y = Encoder.fit_transform(Train_Y)
     Test_Y = Encoder.fit_transform(Test_Y)
 
@@ -135,3 +174,18 @@ if __name__ == "__main__":
     predictions_SVM = SVM.predict(Test_X_Tfidf)
     # Use accuracy_score function to get the accuracy
     print("SVM Accuracy Score -> ", sklearn.metrics.accuracy_score(predictions_SVM, Test_Y) * 100)
+
+#######################################################################################################################
+
+    # WIP
+
+    # from sklearn.feature_extraction.text import TfidfVectorizer
+    # user_input = ["I wanna die"]
+    # vectorizer = TfidfVectorizer()
+    # vectorizer.fit(user_input)
+    # fitted_user_input = vectorizer.transform([user_input[0]])
+    # print(fitted_user_input)
+    #
+    # result = SVM.predict(fitted_user_input)
+    # print(result)
+
