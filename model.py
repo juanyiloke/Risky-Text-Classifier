@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     # Vectorization of the words, we will use TF-IDF
 
-    Tfidf_vect = sklearn.feature_extraction.text.TfidfVectorizer(max_features=10000)
+    Tfidf_vect = sklearn.feature_extraction.text.TfidfVectorizer(max_features=2)
     Tfidf_vect.fit(df['text'])
     Train_X_Tfidf = Tfidf_vect.transform(Train_X)
     Test_X_Tfidf = Tfidf_vect.transform(Test_X)
@@ -181,13 +181,16 @@ if __name__ == "__main__":
 
     # WIP
 
-    # from sklearn.feature_extraction.text import TfidfVectorizer
-    # user_input = ["I wanna die"]
-    # vectorizer = TfidfVectorizer()
-    # vectorizer.fit(user_input)
-    # fitted_user_input = vectorizer.transform([user_input[0]])
-    # print(fitted_user_input)
-    #
-    # result = SVM.predict(fitted_user_input)
-    # print(result)
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    user_input = ["I wanna die"]
+    vectorizer = sklearn.feature_extraction.text.TfidfVectorizer(max_features=2)
+    vectorizer.fit(user_input)
+    fitted_user_input = vectorizer.transform(user_input)
+    print(fitted_user_input)
+
+
+
+
+    result = SVM.predict(fitted_user_input)
+    print(result)
 
