@@ -12,6 +12,8 @@ import nltk
 import re
 import sklearn
 import numpy as np
+from sklearn.preprocessing import LabelEncoder
+
 
 class LabelEncoderExt(object):
     def __init__(self):
