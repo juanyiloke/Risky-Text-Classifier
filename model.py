@@ -86,6 +86,14 @@ if __name__ == "__main__":
         df.loc[i + j] = ["depression"] + [text]
         j += 1
 
+    k = 0
+    while k < j:
+        file = os.listdir("./data/slighly less uncleaned/Recovery")[k]
+        print(file)
+        text = open(("data/slighly less uncleaned/Recovery/" + file)).read()
+        df.loc[i + j + k] = ["recovery"] + [text]
+        k += 1
+
     ## We know that this dataset is collected from actual surveys of participants.
     ## thus we can safely disregard syntactic or semantic structures of the text.
 
@@ -96,7 +104,8 @@ if __name__ == "__main__":
     ## we do some simple normalization of the text data.
 
     i = 0
-    while i < 2*j:
+    while i < 3\
+            *j:
         text = df.loc[i]['text']
         text = normalize_document(text)
         df.loc[i]['text'] = text
@@ -159,7 +168,7 @@ if __name__ == "__main__":
 
     # Vectorization of the words, we will use TF-IDF
 
-    Tfidf_vect = sklearn.feature_extraction.text.TfidfVectorizer(max_features=2)
+    Tfidf_vect = sklearn.feature_extraction.text.TfidfVectorizer(max_features=10)
     Tfidf_vect.fit(df['text'])
     Train_X_Tfidf = Tfidf_vect.transform(Train_X)
     Test_X_Tfidf = Tfidf_vect.transform(Test_X)
@@ -179,18 +188,14 @@ if __name__ == "__main__":
 
 #######################################################################################################################
 
-    # WIP
+    # testing it on some new data
 
     from sklearn.feature_extraction.text import TfidfVectorizer
-    user_input = ["I wanna die"]
-    vectorizer = sklearn.feature_extraction.text.TfidfVectorizer(max_features=2)
+    user_input = ["love knows no boundaries and pain knows nobody other than itself"]
+    vectorizer = sklearn.feature_extraction.text.TfidfVectorizer(max_features=10)
     vectorizer.fit(user_input)
     fitted_user_input = vectorizer.transform(user_input)
     print(fitted_user_input)
-
-
-
-
     result = SVM.predict(fitted_user_input)
     print(result)
 
