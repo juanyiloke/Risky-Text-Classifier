@@ -1,2 +1,2 @@
 # Risky Text Classifier
- An classifier to flag text messages with high risk.
+ A classifier to flag text messages with high risk.
